@@ -1,6 +1,8 @@
 var stageWidth = 10;
 var stageHeight = 6;
 var tileSize = 32;
+var lastTime = Date.now();
+var timeBetweenInputs = 50;
 
 function inBounds(x,y){
     return (0<= x < stageWidth && 0<= y <stageHeight)
@@ -92,14 +94,12 @@ var game = new Phaser.Game(config);
 
 function preload ()
 {
-    this.load.image('greg',"assets/placeholder1.png");
-    this.load.image('rock',"assets/placeholder2.png");
-    this.load.image('executive',"assets/placeholder3.png");
+    this.load.image('greg',"Greg in Space Assets/Character/Character_Up.png");
 }
 
 function create ()
 {
-    player = this.add.sprite(200,0,'greg');
+    player = this.physics.add.sprite(200,0,'greg');
 }
 
 
@@ -107,12 +107,19 @@ function update ()
 {
     var cursors = this.input.keyboard.createCursorKeys();
     
-    if (cursors.left.isDown){
-        player.setVelocityX(-150);
-    } else if(cursors.right.isDown){
-        player.setVelocityX(150);
-    } else {
-        player.setVelocityX(0);
+    if (Date.now()-lastTime > timeBetweenInputs){
+        if (cursors.right.isDown){
+            player.x = player.x + tileSize;
+            lastTime = Date.now();
+        } else if(cursors.left.isDown){
+            player.x = player.x - tileSize;
+            lastTime = Date.now();
+        } else if (cursors.up.isDown){
+            player.y = player.y - tileSize;
+            lastTime = Date.now();
+        } else if(cursors.down.isDown){
+            player.y = player.y + tileSize;
+            lastTime = Date.now();
+        }
     }
-    
 }
