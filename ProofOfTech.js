@@ -4,6 +4,19 @@ var tileSize = 32;
 var lastTime = Date.now();
 var timeBetweenInputs = 50;
 
+var gameMatrix = function createGameMatrix(n,m){
+    var mat = new Array(n);
+    for(var i = 0; i<n; i++){
+        mat[i] = new Array(m);
+    }
+    for(var i = 0; i<n; i++){
+        for(var j=0; j<m; j++){
+            mat[i][j] = new tileObject(i,j,"empty");
+        }
+    }
+    return mat
+}(stageWidth,stageHeight);
+
 function inBounds(x,y){
     return (0<= x < stageWidth && 0<= y <stageHeight)
 }
@@ -30,6 +43,10 @@ function tileObject(x,y,sprite){
     };
     this.getTileLeft =  function(){
         return inBounds(this.x-1,this.y) ? gameMatrix[this.x-1][this.y] : null;
+    };
+    
+    this.isEmpty = function(){
+        return !false;
     };
     
     this.moveUp = function(){
@@ -65,8 +82,6 @@ function tileObject(x,y,sprite){
     };
     
 }
-    
-var gameMatrix = []
 
 var scene = {
     preload: preload,
@@ -99,7 +114,9 @@ function preload ()
 
 function create ()
 {
-    player = this.physics.add.sprite(200,0,'greg');
+    player = this.physics.add.sprite(32,32,'greg');
+    playerObject = new tileObject(1,1,player);
+    
 }
 
 
@@ -109,8 +126,11 @@ function update ()
     
     if (Date.now()-lastTime > timeBetweenInputs){
         if (cursors.right.isDown){
-            player.x = player.x + tileSize;
-            lastTime = Date.now();
+            if(playerObject.getTileRight().isEmpty){
+                player.x = player.x + tileSize;
+                lastTime = Date.now();
+                playerObject.moveRight();
+            }
         } else if(cursors.left.isDown){
             player.x = player.x - tileSize;
             lastTime = Date.now();
