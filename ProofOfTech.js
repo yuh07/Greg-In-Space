@@ -23,7 +23,7 @@ for(i = 0; i<stageWidth; i++){
 }
 
 function inBounds(x,y){
-    return (0<= x < stageWidth && 0<= y <stageHeight)
+    return (0<= x) && (x < stageWidth) && (0<= y) && (y <stageHeight);
 }
 
 
@@ -91,7 +91,6 @@ var config = {
 };
 
 
-
 var game = new Phaser.Game(config);
 
 function preload ()
@@ -116,24 +115,28 @@ function update ()
 
     
     playerObject = gameMatrix[Math.floor(player.x/32)][Math.floor(player.y/32)];
+    console.log(playerObject)
     
     //move Right
     if (cursors.right.isDown && !lastFrameDown.right){
         var tileRight = playerObject.getTileRight();
-        if(tileRight.foreground == null){
-            playerObject.moveRight();
-        }
-        if(tileRight.foreground.name == "rock"){
-            if(tileRight.getTileRight() != null){
-                if(tileRight.getTileRight().foreground == null){
-                    tileRight.moveRight();
-                    tileRight.x += tileSize;
+        
+        if( tileRight != null){
+            if(tileRight.foreground == null){
+                playerObject.moveRight();
+            }
+            if(tileRight.foreground.name == "rock"){
+                if(tileRight.getTileRight() != null){
+                    if(tileRight.getTileRight().foreground == null){
+                        tileRight.moveRight();
+                        tileRight.x += tileSize;
+                    }
                 }
             }
-        }
-        if(tileRight.foreground.name == "exec"){
-            player.execsCollected += 1;
-            playerObject.moveRight();
+            if(tileRight.foreground.name == "exec"){
+                player.execsCollected += 1;
+                playerObject.moveRight();
+            }
         }
         lastFrameDown.right = true;
     } else if(cursors.right.isDown == false){
@@ -143,43 +146,49 @@ function update ()
     //move Left
     if (cursors.left.isDown && !lastFrameDown.left){
         var tileLeft = playerObject.getTileLeft();
-        if(tileLeft.foreground == null){
-            playerObject.moveLeft();
-        }
-        if(tileLeft.foreground.name == "rock"){
-            if(tileLeft.getTileLeft() != null){
-                if(tileLeft.getTileLeft().foreground == null){
-                    tileLeft.moveLeft();
-                    tileLeft.x += -tileSize;
+        
+        if(tileLeft != null){
+            if(tileLeft.foreground == null){
+                playerObject.moveLeft();
+            }
+            if(tileLeft.foreground.name == "rock"){
+                if(tileLeft.getTileLeft() != null){
+                    if(tileLeft.getTileLeft().foreground == null){
+                        tileLeft.moveLeft();
+                        tileLeft.x += -tileSize;
+                    }
                 }
             }
+            if(tileLeft.foreground.name == "exec"){
+                player.execsCollected += 1;
+                playerObject.moveLeft();
+            }
+            lastFrameDown.left = true;
         }
-        if(tileLeft.foreground.name == "exec"){
-            player.execsCollected += 1;
-            playerObject.moveLeft();
-        }
-        lastFrameDown.left = true;
+        
     } else if(cursors.left.isDown == false){
         lastFrameDown.left = false;
     }
     
     //move Up
-        if (cursors.up.isDown && !lastFrameDown.up){
+    if (cursors.up.isDown && !lastFrameDown.up){
         var tileAbove = playerObject.getTileAbove();
-        if(tileAbove.foreground == null){
-            playerObject.moveUp();
-        }
-        if(tileAbove.foreground.name == "rock"){
-            if(tileAbove.gettileAbove() != null){
-                if(tileAbove.gettileAbove().foreground == null){
-                    tileAbove.moveUp();
-                    tileAbove.x += tileSize;
+        if(tileAbove != null){
+            if(tileAbove.foreground == null){
+                playerObject.moveUp();
+            }
+            if(tileAbove.foreground.name == "rock"){
+                if(tileAbove.gettileAbove() != null){
+                    if(tileAbove.gettileAbove().foreground == null){
+                        tileAbove.moveUp();
+                        tileAbove.x += tileSize;
+                    }
                 }
             }
-        }
-        if(tileAbove.foreground.name == "exec"){
-            player.execsCollected += 1;
-            playerObject.moveUp();
+            if(tileAbove.foreground.name == "exec"){
+                player.execsCollected += 1;
+                playerObject.moveUp();
+            }
         }
         lastFrameDown.up = true;
     } else if(cursors.up.isDown == false){
@@ -189,20 +198,23 @@ function update ()
     //move Down    
     if (cursors.down.isDown && !lastFrameDown.down){
         var tileBelow = playerObject.getTileBelow();
-        if(tileBelow.foreground == null){
-            playerObject.moveDown();
-        }
-        if(tileBelow.foreground.name == "rock"){
-            if(tileBelow.getTileBelow() != null){
-                if(tileBelow.getTileBelow().foreground == null){
-                    tileBelow.moveDown();
-                    tileBelow.x += tileSize;
+        
+        if(tileBelow != null){
+            if(tileBelow.foreground == null){
+                playerObject.moveDown();
+            }
+            if(tileBelow.foreground.name == "rock"){
+                if(tileBelow.getTileBelow() != null){
+                    if(tileBelow.getTileBelow().foreground == null){
+                        tileBelow.moveDown();
+                        tileBelow.x += tileSize;
+                    }
                 }
             }
-        }
-        if(tileBelow.foreground.name == "exec"){
-            player.execsCollected += 1;
-            playerObject.moveDown();
+            if(tileBelow.foreground.name == "exec"){
+                player.execsCollected += 1;
+                playerObject.moveDown();
+            }
         }
         lastFrameDown.down = true;
     } else if(cursors.down.isDown == false){
