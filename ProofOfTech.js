@@ -105,6 +105,7 @@ function create ()
     player = this.physics.add.sprite(32,32,'greg');
     gameMatrix[1][1] = new tileObject(1,1,player);
     player.execsCollected = 0;
+    player.name = "player";
     executive = this.physics.add.sprite(64,64,'executive');
     executive.name = "rock";
     gameMatrix[2][2] = new tileObject(2,2,executive);
@@ -115,14 +116,14 @@ function create ()
 function update ()
 {
     var cursors = this.input.keyboard.createCursorKeys();
+    hasMoved = false;
 
-    
     playerObject = gameMatrix[Math.floor(player.x/32)][Math.floor(player.y/32)];
     
     //move Right
     if (cursors.right.isDown && !lastFrameDown.right){
         var tileRight = playerObject.getTileRight();
-        
+        console.log(tileRight);
         if( tileRight != null){
             if(tileRight.foreground == null){
                 playerObject.moveRight();
@@ -155,7 +156,6 @@ function update ()
                 if(tileLeft.getTileLeft() != null){
                     if(tileLeft.getTileLeft().foreground == null){
                         tileLeft.moveLeft();
-                        tileLeft.x += -tileSize;
                     }
                 }
             } else if(tileLeft.foreground.name == "exec"){
@@ -180,14 +180,11 @@ function update ()
                 if(tileAbove.getTileAbove() != null){
                     if(tileAbove.getTileAbove().foreground == null){
                         tileAbove.moveUp();
-                        tileAbove.x += tileSize;
                     }
                 }
             } else if(tileAbove.foreground.name == "exec"){
                 player.execsCollected += 1;
-                console.log(execsCollected);
                 playerObject.moveUp();
-                console.log("I moved up");
             }
         }
         lastFrameDown.up = true;
@@ -207,7 +204,6 @@ function update ()
                 if(tileBelow.getTileBelow() != null){
                     if(tileBelow.getTileBelow().foreground == null){
                         tileBelow.moveDown();
-                        tileBelow.x += tileSize;
                     }
                 }
             } else if(tileBelow.foreground.name == "exec"){
