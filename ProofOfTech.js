@@ -9,6 +9,7 @@ var lastFrameDown = {
     up:false,
     down:false
 };
+var execsCollected;
 
 var gameMatrix = new Array(stageWidth);
 
@@ -26,10 +27,6 @@ function inBounds(x,y){
     return (0<= x) && (x < stageWidth) && (0<= y) && (y <stageHeight);
 }
 
-function collectExec(player, executive){
-    executive.disableBody(true,true);
-    player.execsCollected += 1
-}
 
 function tileObject(x,y,sprite){
     this.x = x;
@@ -101,6 +98,9 @@ function preload ()
 {
     this.load.image('greg',"Sprint1/Character/Character_Up.png");
     this.load.image('executive', "Sprint1/EyeBall Monster-Sheet.png")
+    
+    //load music file
+    this.load.audio('lab_music', "Sprint1/lab_gameplay_music.mp3")
 }
 
 function create ()
@@ -108,22 +108,38 @@ function create ()
     player = this.physics.add.sprite(32,32,'greg');
     gameMatrix[1][1] = new tileObject(1,1,player);
     player.execsCollected = 0;
-    player.name = "player";
     executive = this.physics.add.sprite(64,64,'executive');
-    executive.name = "exec";
+    executive.name = "rock";
     gameMatrix[2][2] = new tileObject(2,2,executive);
+    
+    execsCollected = 0;
+    
+    //adding music
+    music = this.sound.add('lab_music');
+    var musicConfig = {
+        mute: false,
+        volume: 1,
+        rate: 1,
+        detune: 0,
+        seek: 0,
+        loop: true,
+        delay: 0
+    }
+
+    music.play(musicConfig);
 }
 
 function update ()
 {
     var cursors = this.input.keyboard.createCursorKeys();
-    hasMoved = false;
 
+    
     playerObject = gameMatrix[Math.floor(player.x/32)][Math.floor(player.y/32)];
     
     //move Right
     if (cursors.right.isDown && !lastFrameDown.right){
         var tileRight = playerObject.getTileRight();
+        
         if( tileRight != null){
             if(tileRight.foreground == null){
                 playerObject.moveRight();
@@ -135,7 +151,7 @@ function update ()
                     }
                 }
             } else if(tileRight.foreground.name == "exec"){
-                collectExec(player,tileRight.foreground);
+                player.execsCollected += 1;
                 playerObject.moveRight();
             }
         }
@@ -156,10 +172,11 @@ function update ()
                 if(tileLeft.getTileLeft() != null){
                     if(tileLeft.getTileLeft().foreground == null){
                         tileLeft.moveLeft();
+                        tileLeft.x += -tileSize;
                     }
                 }
             } else if(tileLeft.foreground.name == "exec"){
-                collectExec(player,tileLeft.foreground);
+                player.execsCollected += 1;
                 playerObject.moveLeft();
             }
             lastFrameDown.left = true;
@@ -180,11 +197,14 @@ function update ()
                 if(tileAbove.getTileAbove() != null){
                     if(tileAbove.getTileAbove().foreground == null){
                         tileAbove.moveUp();
+                        tileAbove.x += tileSize;
                     }
                 }
             } else if(tileAbove.foreground.name == "exec"){
-                collectExec(player,tileAbove.foreground);
+                player.execsCollected += 1;
+                console.log(execsCollected);
                 playerObject.moveUp();
+                console.log("I moved up");
             }
         }
         lastFrameDown.up = true;
@@ -204,10 +224,11 @@ function update ()
                 if(tileBelow.getTileBelow() != null){
                     if(tileBelow.getTileBelow().foreground == null){
                         tileBelow.moveDown();
+                        tileBelow.x += tileSize;
                     }
                 }
             } else if(tileBelow.foreground.name == "exec"){
-                collectExec(player,tileBelow.foreground);
+                player.execsCollected += 1;
                 playerObject.moveDown();
             }
         }
