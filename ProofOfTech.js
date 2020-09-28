@@ -112,7 +112,6 @@ function create ()
     execsCollected = 0;
 }
 
-
 function update ()
 {
     var cursors = this.input.keyboard.createCursorKeys();
@@ -159,8 +158,7 @@ function update ()
                         tileLeft.x += -tileSize;
                     }
                 }
-            }
-            if(tileLeft.foreground.name == "exec"){
+            } else if(tileLeft.foreground.name == "exec"){
                 player.execsCollected += 1;
                 playerObject.moveLeft();
             }
@@ -179,14 +177,13 @@ function update ()
                 playerObject.moveUp();
             }
             if(tileAbove.foreground.name == "rock"){
-                if(tileAbove.gettileAbove() != null){
-                    if(tileAbove.gettileAbove().foreground == null){
+                if(tileAbove.getTileAbove() != null){
+                    if(tileAbove.getTileAbove().foreground == null){
                         tileAbove.moveUp();
                         tileAbove.x += tileSize;
                     }
                 }
-            }
-            if(tileAbove.foreground.name == "exec"){
+            } else if(tileAbove.foreground.name == "exec"){
                 player.execsCollected += 1;
                 console.log(execsCollected);
                 playerObject.moveUp();
@@ -213,8 +210,7 @@ function update ()
                         tileBelow.x += tileSize;
                     }
                 }
-            }
-            if(tileBelow.foreground.name == "exec"){
+            } else if(tileBelow.foreground.name == "exec"){
                 player.execsCollected += 1;
                 playerObject.moveDown();
             }
