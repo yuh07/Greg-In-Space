@@ -9,6 +9,7 @@ var lastFrameDown = {
     up:false,
     down:false
 };
+var execsCollected;
 
 var gameMatrix = new Array(stageWidth);
 
@@ -105,7 +106,10 @@ function create ()
     gameMatrix[1][1] = new tileObject(1,1,player);
     player.execsCollected = 0;
     executive = this.physics.add.sprite(64,64,'executive');
+    executive.name = "rock";
     gameMatrix[2][2] = new tileObject(2,2,executive);
+    
+    execsCollected = 0;
 }
 
 
@@ -115,7 +119,6 @@ function update ()
 
     
     playerObject = gameMatrix[Math.floor(player.x/32)][Math.floor(player.y/32)];
-    console.log(playerObject)
     
     //move Right
     if (cursors.right.isDown && !lastFrameDown.right){
@@ -129,11 +132,9 @@ function update ()
                 if(tileRight.getTileRight() != null){
                     if(tileRight.getTileRight().foreground == null){
                         tileRight.moveRight();
-                        tileRight.x += tileSize;
                     }
                 }
-            }
-            if(tileRight.foreground.name == "exec"){
+            } else if(tileRight.foreground.name == "exec"){
                 player.execsCollected += 1;
                 playerObject.moveRight();
             }
@@ -187,7 +188,9 @@ function update ()
             }
             if(tileAbove.foreground.name == "exec"){
                 player.execsCollected += 1;
+                console.log(execsCollected);
                 playerObject.moveUp();
+                console.log("I moved up");
             }
         }
         lastFrameDown.up = true;
