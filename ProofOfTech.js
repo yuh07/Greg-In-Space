@@ -1,36 +1,36 @@
 var stageWidth = 10;
 var stageHeight = 6;
 var tileSize = 32;
-var lastTime = Date.now();
-var timeBetweenInputs = 50;
+var playerObject;
+var player;
+var lastFrameDown = {
+    right:false,
+    left:false,
+    up:false,
+    down:false
+};
 
-var gameMatrix = function createGameMatrix(n,m){
-    var mat = new Array(n);
-    for(var i = 0; i<n; i++){
-        mat[i] = new Array(m);
+var gameMatrix = new Array(stageWidth);
+
+for(var i = 0; i<stageWidth; i++){
+    gameMatrix[i] = new Array(stageHeight);
+}
+
+for(i = 0; i<stageWidth; i++){
+    for(var j=0; j<stageHeight; j++){
+        gameMatrix[i][j] = new tileObject(i,j,null);
     }
-    for(var i = 0; i<n; i++){
-        for(var j=0; j<m; j++){
-            mat[i][j] = new tileObject(i,j,"empty");
-        }
-    }
-    return mat
-}(stageWidth,stageHeight);
+}
 
 function inBounds(x,y){
     return (0<= x < stageWidth && 0<= y <stageHeight)
 }
 
-function tileSwap(x1,y1,x2,y2){
-    var placeholder = gameMatrix[x1][y1];
-    gameMatrix[x1][y1] = gameMatrix[x2][y2];
-    gameMatrix[x2][y2] = placeholder;
-}
 
 function tileObject(x,y,sprite){
     this.x = x;
     this.y = y;
-    this.sprite = sprite;
+    this.foreground = sprite;
     
     this.getTileAbove =  function(){
         return inBounds(this.x,this.y-1) ? gameMatrix[this.x][this.y-1] : null;
@@ -45,42 +45,29 @@ function tileObject(x,y,sprite){
         return inBounds(this.x-1,this.y) ? gameMatrix[this.x-1][this.y] : null;
     };
     
-    this.isEmpty = function(){
-        return !false;
-    };
-    
     this.moveUp = function(){
-        if(inBounds(this.x,this.y-1)){
-            if(gameMatrix[this.x][this.y-1].sprite.name == "empty"){
-                tileSwap(this.x,this.y,this.x,this.y-1);
-            }
-        }
+        this.foreground.y += -tileSize;
+        this.getTileAbove().foreground = this.foreground;
+        this.foreground = null;
     };
     
     this.moveDown = function(){
-        if(inBounds(this.x,this.y+1)){
-            if(gameMatrix[this.x][this.y+1].sprite.name == "empty"){
-                tileSwap(this.x,this.y,this.x,this.y+1);
-            }
-        }
+        this.foreground.y += tileSize;
+        this.getTileBelow().foreground = this.foreground;
+        this.foreground = null;
     };
     
     this.moveRight = function(){
-        if(inBounds(this.x+1,this.y)){
-            if(gameMatrix[this.x+1][this.y].sprite.name == "empty"){
-                tileSwap(this.x+1,this.y,this.x,this.y);
-            }
-        }
+        this.foreground.x += tileSize;
+        this.getTileRight().foreground = this.foreground;
+        this.foreground = null;
     };
     
     this.moveLeft = function(){
-        if(inBounds(this.x-1,this.y)){
-            if(gameMatrix[this.x-1][this.y].sprite.name == "empty"){
-                tileSwap(this.x-1,this.y,this.x,this.y);
-            }
-        }
+        this.foreground.x += -tileSize;
+        this.getTileLeft().foreground = this.foreground;
+        this.foreground = null;
     };
-    
 }
 
 var scene = {
@@ -109,37 +96,118 @@ var game = new Phaser.Game(config);
 
 function preload ()
 {
-    this.load.image('greg',"Greg in Space Assets/Character/Character_Up.png");
+    this.load.image('greg',"Sprint1/Character/Character_Up.png");
+    this.load.image('executive', "Sprint1/EyeBall Monster-Sheet.png")
 }
 
 function create ()
 {
     player = this.physics.add.sprite(32,32,'greg');
-    playerObject = new tileObject(1,1,player);
-    
+    gameMatrix[1][1] = new tileObject(1,1,player);
+    player.execsCollected = 0;
+    executive = this.physics.add.sprite(64,64,'executive');
+    gameMatrix[2][2] = new tileObject(2,2,executive);
 }
 
 
 function update ()
 {
     var cursors = this.input.keyboard.createCursorKeys();
+
     
-    if (Date.now()-lastTime > timeBetweenInputs){
-        if (cursors.right.isDown){
-            if(playerObject.getTileRight().isEmpty){
-                player.x = player.x + tileSize;
-                lastTime = Date.now();
-                playerObject.moveRight();
-            }
-        } else if(cursors.left.isDown){
-            player.x = player.x - tileSize;
-            lastTime = Date.now();
-        } else if (cursors.up.isDown){
-            player.y = player.y - tileSize;
-            lastTime = Date.now();
-        } else if(cursors.down.isDown){
-            player.y = player.y + tileSize;
-            lastTime = Date.now();
+    playerObject = gameMatrix[Math.floor(player.x/32)][Math.floor(player.y/32)];
+    
+    //move Right
+    if (cursors.right.isDown && !lastFrameDown.right){
+        var tileRight = playerObject.getTileRight();
+        if(tileRight.foreground == null){
+            playerObject.moveRight();
         }
+        if(tileRight.foreground.name == "rock"){
+            if(tileRight.getTileRight() != null){
+                if(tileRight.getTileRight().foreground == null){
+                    tileRight.moveRight();
+                    tileRight.x += tileSize;
+                }
+            }
+        }
+        if(tileRight.foreground.name == "exec"){
+            player.execsCollected += 1;
+            playerObject.moveRight();
+        }
+        lastFrameDown.right = true;
+    } else if(cursors.right.isDown == false){
+        lastFrameDown.right = false;
     }
+    
+    //move Left
+    if (cursors.left.isDown && !lastFrameDown.left){
+        var tileLeft = playerObject.getTileLeft();
+        if(tileLeft.foreground == null){
+            playerObject.moveLeft();
+        }
+        if(tileLeft.foreground.name == "rock"){
+            if(tileLeft.getTileLeft() != null){
+                if(tileLeft.getTileLeft().foreground == null){
+                    tileLeft.moveLeft();
+                    tileLeft.x += -tileSize;
+                }
+            }
+        }
+        if(tileLeft.foreground.name == "exec"){
+            player.execsCollected += 1;
+            playerObject.moveLeft();
+        }
+        lastFrameDown.left = true;
+    } else if(cursors.left.isDown == false){
+        lastFrameDown.left = false;
+    }
+    
+    //move Up
+        if (cursors.up.isDown && !lastFrameDown.up){
+        var tileAbove = playerObject.getTileAbove();
+        if(tileAbove.foreground == null){
+            playerObject.moveUp();
+        }
+        if(tileAbove.foreground.name == "rock"){
+            if(tileAbove.gettileAbove() != null){
+                if(tileAbove.gettileAbove().foreground == null){
+                    tileAbove.moveUp();
+                    tileAbove.x += tileSize;
+                }
+            }
+        }
+        if(tileAbove.foreground.name == "exec"){
+            player.execsCollected += 1;
+            playerObject.moveUp();
+        }
+        lastFrameDown.up = true;
+    } else if(cursors.up.isDown == false){
+        lastFrameDown.up = false;
+    }
+    
+    //move Down    
+    if (cursors.down.isDown && !lastFrameDown.down){
+        var tileBelow = playerObject.getTileBelow();
+        if(tileBelow.foreground == null){
+            playerObject.moveDown();
+        }
+        if(tileBelow.foreground.name == "rock"){
+            if(tileBelow.getTileBelow() != null){
+                if(tileBelow.getTileBelow().foreground == null){
+                    tileBelow.moveDown();
+                    tileBelow.x += tileSize;
+                }
+            }
+        }
+        if(tileBelow.foreground.name == "exec"){
+            player.execsCollected += 1;
+            playerObject.moveDown();
+        }
+        lastFrameDown.down = true;
+    } else if(cursors.down.isDown == false){
+        lastFrameDown.down = false;
+    }
+
+
 }
