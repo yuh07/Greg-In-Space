@@ -26,6 +26,10 @@ function inBounds(x,y){
     return (0<= x) && (x < stageWidth) && (0<= y) && (y <stageHeight);
 }
 
+function collectExec(player, executive){
+    executive.disableBody(true,true);
+    player.execsCollected += 1
+}
 
 function tileObject(x,y,sprite){
     this.x = x;
@@ -131,7 +135,7 @@ function update ()
                     }
                 }
             } else if(tileRight.foreground.name == "exec"){
-                player.execsCollected += 1;
+                collectExec(player,tileRight.foreground);
                 playerObject.moveRight();
             }
         }
@@ -155,7 +159,7 @@ function update ()
                     }
                 }
             } else if(tileLeft.foreground.name == "exec"){
-                player.execsCollected += 1;
+                collectExec(player,tileLeft.foreground);
                 playerObject.moveLeft();
             }
             lastFrameDown.left = true;
@@ -179,7 +183,7 @@ function update ()
                     }
                 }
             } else if(tileAbove.foreground.name == "exec"){
-                player.execsCollected += 1;
+                collectExec(player,tileAbove.foreground);
                 playerObject.moveUp();
             }
         }
@@ -203,7 +207,7 @@ function update ()
                     }
                 }
             } else if(tileBelow.foreground.name == "exec"){
-                player.execsCollected += 1;
+                collectExec(player,tileBelow.foreground);
                 playerObject.moveDown();
             }
         }
