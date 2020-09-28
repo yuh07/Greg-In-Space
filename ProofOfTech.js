@@ -9,7 +9,6 @@ var lastFrameDown = {
     up:false,
     down:false
 };
-var execsCollected;
 
 var gameMatrix = new Array(stageWidth);
 
@@ -107,10 +106,8 @@ function create ()
     player.execsCollected = 0;
     player.name = "player";
     executive = this.physics.add.sprite(64,64,'executive');
-    executive.name = "rock";
+    executive.name = "exec";
     gameMatrix[2][2] = new tileObject(2,2,executive);
-    
-    execsCollected = 0;
 }
 
 function update ()
@@ -123,7 +120,6 @@ function update ()
     //move Right
     if (cursors.right.isDown && !lastFrameDown.right){
         var tileRight = playerObject.getTileRight();
-        console.log(tileRight);
         if( tileRight != null){
             if(tileRight.foreground == null){
                 playerObject.moveRight();
